@@ -1,34 +1,46 @@
-from discord import app_commands
+import os
+import discord
 from discord.ext import commands
+from discord import app_commands
 
+# ---------------------------
+# Intents
+# ---------------------------
 intents = discord.Intents.default()
 intents.message_content = True
 
+# ---------------------------
+# Bot Setup
+# ---------------------------
 bot = commands.Bot(command_prefix="!", intents=intents)
+tree = bot.tree
 
-tree = bot.tree  # For slash commands
-
+# Only allow commands in this channel
 ALLOWED_CHANNEL_ID = 1408116182942482442
-linked_accounts = {}
 
-@tree.command(name="connect_bwah", description="Link your Bwah account")
-async def connect_bwah(interaction: discord.Interaction, token: str):
+# ---------------------------
+# Slash Command
+# ---------------------------
+@tree.command(name="connect_bwah", description="Connect your Bwah account")
+async def connect_bwah(interaction: discord.Interaction):
     if interaction.channel.id != ALLOWED_CHANNEL_ID:
-        await interaction.response.send_message("You can't use this here.", ephemeral=True)
+        await interaction.response.send_message("You can't use this command here.", ephemeral=True)
         return
-    linked_accounts[interaction.user.id] = token
-    await interaction.response.send_message(f"{interaction.user.display_name}, linked! ✅", ephemeral=True)
 
-@tree.command(name="status_bwah", description="Check if your Bwah account is linked")
-async def status_bwah(interaction: discord.Interaction):
-    if interaction.user.id in linked_accounts:
-        await interaction.response.send_message(f"{interaction.user.display_name}, you are connected! ✅", ephemeral=True)
-    else:
-        await interaction.response.send_message(f"{interaction.user.display_name}, not connected. ❌", ephemeral=True)
+    # Simulate connection process
+    # Replace this with your actual Bwah API interaction
+    await interaction.response.send_message(f"{interaction.user.mention}, connected to Bwah account successfully!")
 
+# ---------------------------
+# Event: on_ready
+# ---------------------------
 @bot.event
 async def on_ready():
-    await tree.sync()  # Registers the slash commands with Discord
+    await tree.sync()
     print(f"Logged in as {bot.user}")
 
-bot.run("YOUR_DISCORD_BOT_TOKEN")
+# ---------------------------
+# Start Bot
+# ---------------------------
+TOKEN = os.getenv("DISCORD_TOKEN")  # Set this in Railway's ENV variables
+bot.run(TOKEN)
