@@ -25,7 +25,8 @@ async def use(interaction: discord.Interaction):
     await interaction.response.send_message(
         "To use **Bwah Tool's** click "
         "[here](https://drive.google.com/drive/u/0/folders/1alck_TnS4O34Y3q2nWal9p0bFmMeAfq8) "
-        "to download, and then run `index.html` in the folder."
+        "to download, and then run `BwahTool's.html`, on your vr."
     )
 
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))
+
