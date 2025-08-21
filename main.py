@@ -1,40 +1,27 @@
 import discord
 from discord.ext import commands
-import json
-import os
 
-# Intents
-intents = discord.Intents.default()
-intents.message_content = True
+ALLOWED_CHANNEL_ID = 1408116182942482442
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="!")
 
-# Path to store tokens
-TOKEN_FILE = "bwah_users.json"
+# Store user tokens securely (in-memory example)
+linked_accounts = {}  # {discord_user_id: user_token}
 
-# Load existing tokens
-if os.path.exists(TOKEN_FILE):
-    with open(TOKEN_FILE, "r") as f:
-        user_tokens = json.load(f)
-else:
-    user_tokens = {}
-
-# Command to connect Bwah account
 @bot.command(name="connect_bwah")
 async def connect_bwah(ctx, token: str):
-    user_tokens[str(ctx.author.id)] = token
-    with open(TOKEN_FILE, "w") as f:
-        json.dump(user_tokens, f, indent=2)
-    await ctx.send(f"{ctx.author.mention}, your Bwah account token has been saved!")
+    if ctx.channel.id != ALLOWED_CHANNEL_ID:
+        await ctx.send("You can't use this command in this channel.")
+        return
 
-# Example command using Bwah token
-@bot.command(name="my_bwah_token")
-async def my_bwah_token(ctx):
-    token = user_tokens.get(str(ctx.author.id))
-    if token:
-        await ctx.send(f"{ctx.author.mention}, your saved Bwah token is: `{token[:5]}...`")
+    linked_accounts[ctx.author.id] = token
+    await ctx.send(f"{ctx.author.display_name}, your Bwah account is now linked! ✅")
+
+@bot.command(name="status_bwah")
+async def status_bwah(ctx):
+    if ctx.author.id in linked_accounts:
+        await ctx.send(f"{ctx.author.display_name}, you are connected! ✅")
     else:
-        await ctx.send(f"{ctx.author.mention}, you have not connected your Bwah account yet. Use `!connect_bwah <token>`")
+        await ctx.send(f"{ctx.author.display_name}, you are not connected. ❌")
 
-# Run bot
-bot.run(os.getenv("DISCORD_TOKEN"))
+bot.run("YOUR_DISCORD_BOT_TOKEN")
