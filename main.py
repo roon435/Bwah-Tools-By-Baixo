@@ -1,32 +1,40 @@
-import discord, os
+import discord
 from discord.ext import commands
+import json
+import os
 
+# Intents
 intents = discord.Intents.default()
+intents.message_content = True
+
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Allowed channel for the /use command
-ALLOWED_CHANNEL_ID = 1408116182942482442  
+# Path to store tokens
+TOKEN_FILE = "bwah_users.json"
 
-@bot.event
-async def on_ready():
-    synced = await bot.tree.sync()
-    print(f"✅ Logged in as {bot.user}")
-    print(f"🔗 Synced commands: {[cmd.name for cmd in synced]}")
+# Load existing tokens
+if os.path.exists(TOKEN_FILE):
+    with open(TOKEN_FILE, "r") as f:
+        user_tokens = json.load(f)
+else:
+    user_tokens = {}
 
-@bot.tree.command(name="use", description="Get instructions for using Bwah Tool's")
-async def use(interaction: discord.Interaction):
-    if interaction.channel_id != ALLOWED_CHANNEL_ID:
-        await interaction.response.send_message(
-            "❌ You can only use this command in <#1408116182942482442>.",
-            ephemeral=True
-        )
-        return
+# Command to connect Bwah account
+@bot.command(name="connect_bwah")
+async def connect_bwah(ctx, token: str):
+    user_tokens[str(ctx.author.id)] = token
+    with open(TOKEN_FILE, "w") as f:
+        json.dump(user_tokens, f, indent=2)
+    await ctx.send(f"{ctx.author.mention}, your Bwah account token has been saved!")
 
-    await interaction.response.send_message(
-        "To use **Bwah Tool's** click "
-        "[here](https://drive.google.com/drive/u/0/folders/1alck_TnS4O34Y3q2nWal9p0bFmMeAfq8) "
-        "to download, and then run `BwahTool's.html`, on your vr."
-    )
+# Example command using Bwah token
+@bot.command(name="my_bwah_token")
+async def my_bwah_token(ctx):
+    token = user_tokens.get(str(ctx.author.id))
+    if token:
+        await ctx.send(f"{ctx.author.mention}, your saved Bwah token is: `{token[:5]}...`")
+    else:
+        await ctx.send(f"{ctx.author.mention}, you have not connected your Bwah account yet. Use `!connect_bwah <token>`")
 
-bot.run(os.getenv("DISCORD_BOT_TOKEN"))
-
+# Run bot
+bot.run(os.getenv("DISCORD_TOKEN"))
