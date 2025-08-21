@@ -4,7 +4,7 @@ from discord.ext import commands
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# Your allowed channel
+# Allowed channel for the /use command
 ALLOWED_CHANNEL_ID = 1408116182942482442  
 
 @bot.event
@@ -15,15 +15,13 @@ async def on_ready():
 
 @bot.tree.command(name="use", description="Get instructions for using Bwah Tool's")
 async def use(interaction: discord.Interaction):
-    # Check if command is used in the allowed channel
     if interaction.channel_id != ALLOWED_CHANNEL_ID:
         await interaction.response.send_message(
             "❌ You can only use this command in <#1408116182942482442>.",
-            ephemeral=True  # only visible to the user
+            ephemeral=True
         )
         return
 
-    # If it's the right channel, send the message
     await interaction.response.send_message(
         "To use **Bwah Tool's** click "
         "[here](https://drive.google.com/drive/u/0/folders/1alck_TnS4O34Y3q2nWal9p0bFmMeAfq8) "
