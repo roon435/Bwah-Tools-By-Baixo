@@ -17,21 +17,22 @@ async def on_ready():
     print(f"✅ Logged in as {bot.user}")
     try:
         synced = await bot.tree.sync()
-        print(f"🔗 Synced {len(synced)} commands")
+        print(f"🔗 Synced {len(synced)} commands: {[cmd.name for cmd in synced]}")
     except Exception as e:
         print(f"❌ Error syncing commands: {e}")
 
 # -------------------------
-# Slash Command
+# Only Slash Command (/use)
 # -------------------------
 @bot.tree.command(name="use", description="Get instructions for using Bwah Tool's")
 async def use(interaction: discord.Interaction):
     await interaction.response.send_message(
-        "To use **Bwah Tool's** click [here](https://drive.google.com/drive/u/0/folders/1alck_TnS4O34Y3q2nWal9p0bFmMeAfq8) "
+        "To use **Bwah Tool's** click "
+        "[here](https://drive.google.com/drive/u/0/folders/1alck_TnS4O34Y3q2nWal9p0bFmMeAfq8) "
         "to download, and then run `index.html` in the folder."
     )
 
 # -------------------------
-# Run Bot
+# Run Bot (Railway will inject token)
 # -------------------------
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))
