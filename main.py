@@ -1,38 +1,33 @@
-import discord
-from discord import app_commands
+import discord, os
 from discord.ext import commands
-import os
 
-# -------------------------
-# Bot Setup
-# -------------------------
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# -------------------------
-# On Ready
-# -------------------------
+# Your allowed channel
+ALLOWED_CHANNEL_ID = 1408116182942482442  
+
 @bot.event
 async def on_ready():
+    synced = await bot.tree.sync()
     print(f"✅ Logged in as {bot.user}")
-    try:
-        synced = await bot.tree.sync()
-        print(f"🔗 Synced {len(synced)} commands: {[cmd.name for cmd in synced]}")
-    except Exception as e:
-        print(f"❌ Error syncing commands: {e}")
+    print(f"🔗 Synced commands: {[cmd.name for cmd in synced]}")
 
-# -------------------------
-# Only Slash Command (/use)
-# -------------------------
 @bot.tree.command(name="use", description="Get instructions for using Bwah Tool's")
 async def use(interaction: discord.Interaction):
+    # Check if command is used in the allowed channel
+    if interaction.channel_id != ALLOWED_CHANNEL_ID:
+        await interaction.response.send_message(
+            "❌ You can only use this command in <#1408116182942482442>.",
+            ephemeral=True  # only visible to the user
+        )
+        return
+
+    # If it's the right channel, send the message
     await interaction.response.send_message(
         "To use **Bwah Tool's** click "
         "[here](https://drive.google.com/drive/u/0/folders/1alck_TnS4O34Y3q2nWal9p0bFmMeAfq8) "
         "to download, and then run `index.html` in the folder."
     )
 
-# -------------------------
-# Run Bot (Railway will inject token)
-# -------------------------
 bot.run(os.getenv("DISCORD_BOT_TOKEN"))
